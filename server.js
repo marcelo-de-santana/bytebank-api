@@ -1,6 +1,8 @@
 const fs = require("fs");
 const bodyParser = require("body-parser");
 const jsonServer = require("json-server");
+const nodeBuffer = require("buffer");
+if (!nodeBuffer.SlowBuffer) nodeBuffer.SlowBuffer = nodeBuffer.Buffer;
 const jwt = require("jsonwebtoken");
 
 const server = jsonServer.create();
@@ -19,14 +21,14 @@ function criaToken(payload, expiresIn = "6h") {
 
 function verificaToken(token) {
   return jwt.verify(token, SECRET_KEY, (err, decode) =>
-    decode !== undefined ? decode : err
+    decode !== undefined ? decode : err,
   );
 }
 
 function usuarioExiste({ email, senha }) {
   return (
     userdb.usuarios.findIndex(
-      (user) => user.email === email && user.senha === senha
+      (user) => user.email === email && user.senha === senha,
     ) !== -1
   );
 }
@@ -84,7 +86,7 @@ server.post("/public/login", (req, res) => {
   const access_token = criaToken({ email, senha });
   let user = {
     ...userdb.usuarios.find(
-      (user) => user.email === email && user.senha === senha
+      (user) => user.email === email && user.senha === senha,
     ),
   };
   delete user.senha;
@@ -104,7 +106,7 @@ server.use(/^(?!\/(public|transacoes|saldo)).*$/, (req, res, next) => {
   try {
     let verificaTokenResult;
     verificaTokenResult = verificaToken(
-      req.headers.authorization.split(" ")[1]
+      req.headers.authorization.split(" ")[1],
     );
 
     if (verificaTokenResult instanceof Error) {
